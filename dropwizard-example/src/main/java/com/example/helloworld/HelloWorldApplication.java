@@ -1,7 +1,10 @@
 package com.example.helloworld;
-import com.example.helloworld.auth.ExampleAuthorizer;
-import io.dropwizard.auth.AuthValueFactoryProvider;
+import java.util.Map;
+
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+
 import com.example.helloworld.auth.ExampleAuthenticator;
+import com.example.helloworld.auth.ExampleAuthorizer;
 import com.example.helloworld.cli.RenderCommand;
 import com.example.helloworld.core.Person;
 import com.example.helloworld.core.Template;
@@ -15,9 +18,15 @@ import com.example.helloworld.resources.PeopleResource;
 import com.example.helloworld.resources.PersonResource;
 import com.example.helloworld.resources.ProtectedResource;
 import com.example.helloworld.resources.ViewResource;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -27,15 +36,13 @@ import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import java.util.Map;
 
 public class HelloWorldApplication extends Application<HelloWorldConfiguration> {
     public static void main(String[] args) throws Exception {
         new HelloWorldApplication().run(args);
     }
 
-    private final HibernateBundle<HelloWorldConfiguration> hibernateBundle =
+    private static final HibernateBundle<HelloWorldConfiguration> hibernateBundle =
             new HibernateBundle<HelloWorldConfiguration>(Person.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
@@ -77,7 +84,10 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 
     @Override
     public void run(HelloWorldConfiguration configuration, Environment environment) {
-        final PersonDAO dao = new PersonDAO(hibernateBundle.getSessionFactory());
+    	
+    	Injector injector = Guice.createInjector(new GuiceModule());
+    	
+//        final PersonDAO dao = new PersonDAO(hibernateBundle.getSessionFactory());
         final Template template = configuration.buildTemplate();
 
         environment.healthChecks().register("template", new TemplateHealthCheck(template));
@@ -92,8 +102,30 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
         environment.jersey().register(new HelloWorldResource(template));
         environment.jersey().register(new ViewResource());
         environment.jersey().register(new ProtectedResource());
-        environment.jersey().register(new PeopleResource(dao));
-        environment.jersey().register(new PersonResource(dao));
+        
+        PeopleResource peopleResource = new PeopleResource();
+        injector.injectMembers(peopleResource);
+		environment.jersey().register(peopleResource);
+		
+        PersonResource personResource = new PersonResource();
+        injector.injectMembers(personResource);
+		environment.jersey().register(personResource);
+		
         environment.jersey().register(new FilteredResource());
+    }
+    
+    private static class GuiceModule extends AbstractModule {
+		@Override
+		protected void configure() {
+//			bind(PersonDAO.class).toInstance(new PersonDAO(hibernateBundle.getSessionFactory()));
+			bind(PersonDAO.class).toProvider(PersonDAOProvider.class);
+		}
+    }
+    
+    private static class PersonDAOProvider implements Provider<PersonDAO> {
+    	
+	    public PersonDAO get() {
+	    	return new PersonDAO(hibernateBundle.getSessionFactory());
+	    }
     }
 }
