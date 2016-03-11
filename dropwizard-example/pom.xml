@@ -24,7 +24,9 @@
         <maven.site.skip>true</maven.site.skip>
         <maven.site.deploy.skip>true</maven.site.deploy.skip>
         
-        <dropwizard-guice.version>0.8.4.0</dropwizard-guice.version>
+        <guice.version>4.0</guice.version>
+        <soabase.version>0.10.2</soabase.version>
+        <guice-bridge.version>2.4.0-b34</guice-bridge.version>
     </properties>
 
     <repositories>
@@ -124,11 +126,76 @@
             </exclusions>
         </dependency>
         
-        <!-- Guice -->
+		<!-- Guice Persist -->
+
 		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>4.0</version>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-persist</artifactId>
+			<version>${guice.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- Guice/Hk2 bridge -->
+		
+		<dependency>
+			<groupId>org.glassfish.hk2</groupId>
+			<artifactId>guice-bridge</artifactId>
+			<version>${guice-bridge.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.inject</groupId>
+					<artifactId>guice</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!--SOABase Core  -->
+		
+		<dependency>
+			<groupId>io.soabase</groupId>
+			<artifactId>soabase-core</artifactId>
+			<version>${soabase.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.dropwizard</groupId>
+					<artifactId>dropwizard-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!--SOABase Guice  -->
+		
+		<dependency>
+			<groupId>io.soabase</groupId>
+			<artifactId>soabase-guice</artifactId>
+			<version>${soabase.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.dropwizard</groupId>
+					<artifactId>dropwizard-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.inject</groupId>
+					<artifactId>guice</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.glassfish.hk2</groupId>
+					<artifactId>guice-bridge</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
     </dependencies>

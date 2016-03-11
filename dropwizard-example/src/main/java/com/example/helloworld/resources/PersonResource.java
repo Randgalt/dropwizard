@@ -20,8 +20,11 @@ import io.dropwizard.jersey.params.LongParam;
 @Produces(MediaType.APPLICATION_JSON)
 public class PersonResource {
 
+	
 	@com.google.inject.Inject
     private Provider<PersonDAO> peopleDAOProvider;
+	
+	//to instantiate resource using new
 	private PersonDAO peopleDAO;
 
 	public PersonResource() {

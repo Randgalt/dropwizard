@@ -1,21 +1,26 @@
 package com.example.helloworld;
 
-import com.example.helloworld.core.Person;
-import com.example.helloworld.api.Saying;
-import com.google.common.base.Optional;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.testing.ResourceHelpers;
-import io.dropwizard.testing.junit.DropwizardAppRule;
-import org.junit.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.File;
+import java.io.IOException;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import com.example.helloworld.core.Person;
+
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit.DropwizardAppRule;
 
 public class IntegrationTest {
 
@@ -50,16 +55,6 @@ public class IntegrationTest {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Test
-    public void testHelloWorld() throws Exception {
-        final Optional<String> name = Optional.fromNullable("Dr. IntegrationTest");
-        final Saying saying = client.target("http://localhost:" + RULE.getLocalPort() + "/hello-world")
-                .queryParam("name", name.get())
-                .request()
-                .get(Saying.class);
-        assertThat(saying.getContent()).isEqualTo(RULE.getConfiguration().buildTemplate().render(name));
     }
 
     @Test
