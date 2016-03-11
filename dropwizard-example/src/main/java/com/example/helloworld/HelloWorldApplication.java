@@ -56,6 +56,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 				new JerseyGuiceModule(){
 					@Override
 					protected void configureServlets() {
+						bind(PersonResource.class);
 					}
 				});
         
@@ -85,11 +86,6 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
         PeopleResource peopleResource = new PeopleResource();
         injector.injectMembers(peopleResource);
 		environment.jersey().register(peopleResource);
-		
-        PersonResource personResource = new PersonResource();
-        injector.injectMembers(personResource);
-		environment.jersey().register(personResource);
-		
     }
     
     private static class DAOGuiceModule extends AbstractModule {

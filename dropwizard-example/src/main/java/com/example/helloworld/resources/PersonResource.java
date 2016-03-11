@@ -7,6 +7,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+
 import com.example.helloworld.core.Person;
 import com.example.helloworld.db.PersonDAO;
 import com.example.helloworld.views.PersonView;
@@ -19,12 +21,13 @@ import io.dropwizard.jersey.params.LongParam;
 @Path("/people/{personId}")
 @Produces(MediaType.APPLICATION_JSON)
 public class PersonResource {
+	private static final Logger logger = org.slf4j.LoggerFactory.getLogger(PersonResource.class);
 
-	
-	@com.google.inject.Inject
+	//to test soabase injection
+	@javax.inject.Inject
     private Provider<PersonDAO> peopleDAOProvider;
 	
-	//to instantiate resource using new
+	//to instantiate resource using "new"
 	private PersonDAO peopleDAO;
 
 	public PersonResource() {
@@ -64,8 +67,10 @@ public class PersonResource {
     	final Optional<Person> person;
 		
     	if (peopleDAO!=null) {
+    		logger.info("Using Non-Injected peopleDAO");
     		person = peopleDAO.findById(personId);
     	} else {
+    		logger.info("Using Injected peopleDAOProvider");
     		person = peopleDAOProvider.get().findById(personId);
     	}
         
