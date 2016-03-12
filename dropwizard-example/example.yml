@@ -15,43 +15,44 @@ database:
   password: sa
 
   # the JDBC URL
-  url: jdbc:h2:./target/example
+  url: jdbc:h2:./target/example;DB_CLOSE_ON_EXIT=FALSE
+  
+  properties:
+    charSet: UTF-8
+    # hibernate.archive.autodetection: class, hbm
+    hibernate.hbm2ddl.import_files: import.sql
+    hibernate.hbm2ddl.auto: create-drop
+    hibernate.format_sql: true
+    hibernate.use_sql_comments: true
+    hibernate.dialect: org.hibernate.dialect.H2Dialect
+    hibernate.current_session_context_class: thread
+    hibernate.cache_provider: org.hibernate.cache.NoCacheProvider
+    hibernate.ejb.naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    hibernate.archive.autodetection: none
+    
+    hibernate.connection.provider_class: org.hibernate.connection.C3P0ConnectionProvider
+    hibernate.connection.driver_class: org.h2.Driver
 
-# use the simple server factory if you only want to run on a single port
-#server:
-#  type: simple
-#  connector:
-#    type: http
-#    port: 8080
+    hibernate.c3p0.max_size: 100
+    hibernate.c3p0.min_size: 1
+    hibernate.c3p0.acquire_increment: 1
+    hibernate.c3p0.idle_test_period: 300
+    hibernate.c3p0.max_statements: 0
+    hibernate.c3p0.timeout: 3000
+
+    hibernate.connection.isolation: 2
+    hibernate.connection.driver_class: org.h2.Driver
+    hibernate.connection.url: jdbc:h2:./target/example;DB_CLOSE_ON_EXIT=FALSE
+    hibernate.connection.username: sa
+    hibernate.connection.password: sa
 
 server:
-#  softNofileLimit: 1000
-#  hardNofileLimit: 1000
   applicationConnectors:
     - type: http
       port: 8080
-    - type: https
-      port: 8443
-      keyStorePath: example.keystore
-      keyStorePassword: example
-      validateCerts: false
-      validatePeers: false
-    #this requires the alpn-boot library on the JVM's boot classpath
-    #- type: h2
-    #  port: 8445
-    #  keyStorePath: example.keystore
-    #  keyStorePassword: example
-    #  validateCerts: false
-    #  validatePeers: false
   adminConnectors:
     - type: http
       port: 8081
-    - type: https
-      port: 8444
-      keyStorePath: example.keystore
-      keyStorePassword: example
-      validateCerts: false
-      validatePeers: false
 
 # Logging settings.
 logging:
@@ -63,15 +64,11 @@ logging:
   loggers:
 
     # Sets the level for 'com.example.app' to DEBUG.
-    com.example.app: DEBUG
+    com.example: DEBUG
 
     # Redirects SQL logs to a separate file
     org.hibernate.SQL:
       level: DEBUG
-
-# Logback's Time Based Rolling Policy - archivedLogFilenamePattern: /tmp/application-%d{yyyy-MM-dd}.log.gz
-# Logback's Size and Time Based Rolling Policy -  archivedLogFilenamePattern: /tmp/application-%d{yyyy-MM-dd}-%i.log.gz
-# Logback's Fixed Window Rolling Policy -  archivedLogFilenamePattern: /tmp/application-%i.log.gz
 
   appenders:
     - type: console

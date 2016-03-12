@@ -27,6 +27,11 @@
         <guice.version>4.0</guice.version>
         <soabase.version>0.10.2</soabase.version>
         <guice-bridge.version>2.4.0-b34</guice-bridge.version>
+        
+        <hibernate-core.version>5.0.7.Final</hibernate-core.version>
+		<hibernate-envers.version>5.0.7.Final</hibernate-envers.version>
+		<hibernate-entitymanager.version>5.0.7.Final</hibernate-entitymanager.version>
+		<hibernate-c3p0.version>5.0.7.Final</hibernate-c3p0.version>
     </properties>
 
     <repositories>
@@ -66,10 +71,10 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-http2</artifactId>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-hibernate</artifactId>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-migrations</artifactId>
@@ -194,6 +199,41 @@
 				<exclusion>
 					<groupId>com.fasterxml.jackson.core</groupId>
 					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- Hibernate core -->
+		
+		<!-- <dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate-core.version}</version>
+		</dependency> -->
+		
+		<!-- Hibernate Entity Manager -->
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${hibernate-entitymanager.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jboss.logging</groupId>
+					<artifactId>jboss-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- Hibernate c3p0 connection pool -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+			<version>${hibernate-c3p0.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jboss.logging</groupId>
+					<artifactId>jboss-logging</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

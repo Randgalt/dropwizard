@@ -1,17 +1,20 @@
 package com.example.helloworld;
 
-import com.example.helloworld.core.Template;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
-import io.dropwizard.Configuration;
-import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.metrics.graphite.GraphiteReporterFactory;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.Map;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+import com.example.helloworld.core.Template;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+
+import io.dropwizard.Configuration;
+import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.metrics.graphite.GraphiteReporterFactory;
 
 public class HelloWorldConfiguration extends Configuration {
     @NotEmpty
@@ -23,11 +26,14 @@ public class HelloWorldConfiguration extends Configuration {
     @Valid
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
+    
+    @JsonProperty
+    private Boolean isTest;
 
-    @NotNull
+	//    @NotNull
     private Map<String, Map<String, String>> viewRendererConfiguration = Collections.emptyMap();
 
-    @Valid
+//    @Valid
     private GraphiteReporterFactory graphiteReporterFactory = new GraphiteReporterFactory();
 
     @JsonProperty
@@ -87,4 +93,12 @@ public class HelloWorldConfiguration extends Configuration {
     public void setGraphiteReporterFactory(GraphiteReporterFactory graphiteReporterFactory) {
         this.graphiteReporterFactory = graphiteReporterFactory;
     }
+    
+    public Boolean getIsTest() {
+		return isTest;
+	}
+
+	public void setIsTest(Boolean isTest) {
+		this.isTest = isTest;
+	}
 }
