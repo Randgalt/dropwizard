@@ -23,11 +23,11 @@
              so that dropwizard-example site doesn't get staged and deployed. -->
         <maven.site.skip>true</maven.site.skip>
         <maven.site.deploy.skip>true</maven.site.deploy.skip>
-        
+
         <guice.version>4.0</guice.version>
         <soabase.version>0.10.2</soabase.version>
         <guice-bridge.version>2.4.0-b34</guice-bridge.version>
-        
+
         <hibernate-core.version>5.0.7.Final</hibernate-core.version>
 		<hibernate-envers.version>5.0.7.Final</hibernate-envers.version>
 		<hibernate-entitymanager.version>5.0.7.Final</hibernate-entitymanager.version>
@@ -130,7 +130,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
 		<!-- Guice Persist -->
 
 		<dependency>
@@ -144,9 +144,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- Guice/Hk2 bridge -->
-		
+
 		<dependency>
 			<groupId>org.glassfish.hk2</groupId>
 			<artifactId>guice-bridge</artifactId>
@@ -158,9 +158,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!--SOABase Core  -->
-		
+
 		<dependency>
 			<groupId>io.soabase</groupId>
 			<artifactId>soabase-core</artifactId>
@@ -172,9 +172,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!--SOABase Guice  -->
-		
+
 		<dependency>
 			<groupId>io.soabase</groupId>
 			<artifactId>soabase-guice</artifactId>
@@ -202,15 +202,15 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- Hibernate core -->
-		
+
 		<!-- <dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>${hibernate-core.version}</version>
 		</dependency> -->
-		
+
 		<!-- Hibernate Entity Manager -->
 
 		<dependency>
@@ -237,7 +237,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
     </dependencies>
 
     <build>
@@ -359,7 +359,7 @@
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.example.helloworld.HelloWorldApplication</mainClass>
+                            <mainClass>com.example.helloworld.ApplicationUsingGuiceInjectedUnitOfWorkFilter</mainClass>
                         </transformer>
                     </transformers>
                 </configuration>

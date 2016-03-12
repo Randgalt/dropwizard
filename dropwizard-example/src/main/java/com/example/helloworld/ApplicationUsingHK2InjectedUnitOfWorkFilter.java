@@ -3,6 +3,8 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Properties;
 
+import com.google.inject.Module;
+import com.google.inject.Scopes;
 import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -36,19 +38,13 @@ import io.soabase.guice.StandardInjectorProvider;
 
 public class ApplicationUsingHK2InjectedUnitOfWorkFilter extends Application<HelloWorldConfiguration> {
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationUsingHK2InjectedUnitOfWorkFilter.class);
-	
-	private InjectorProvider<HelloWorldConfiguration> injectorProvider;
-	private Injector injector;
+
 	private static String confFile;
-	
+
     public static void main(String[] args) throws Exception {
     	confFile = args[args.length-1];
 		System.out.println("Using config : " + confFile);
         new ApplicationUsingHK2InjectedUnitOfWorkFilter().run(args);
-    }
-    
-    public Injector getInjector() {
-    	return injector;
     }
 
     @Override
@@ -58,17 +54,17 @@ public class ApplicationUsingHK2InjectedUnitOfWorkFilter extends Application<Hel
 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
-    	
+
     	HelloWorldConfiguration configuration;
-    	
+
 		if (confFile==null) {
 			setConfFile();
 		} else {
 			System.out.println("Using Config File " + confFile);
 		}
-		
+
 		configuration = StaticUtil.getConfiguration(confFile);
-		
+
         // Enable variable substitution with environment variables
         bootstrap.setConfigurationSourceProvider(
                 new SubstitutingSourceProvider(
@@ -76,20 +72,44 @@ public class ApplicationUsingHK2InjectedUnitOfWorkFilter extends Application<Hel
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        
+
         JpaPersistModule jpaModule = getJpaPersistModule(configuration);
-        
-        injectorProvider = new StandardInjectorProvider<>(
-        		new DAOGuiceModule(),
-        		jpaModule,
-				new JerseyGuiceModule(){
+
+		InjectorProvider<HelloWorldConfiguration> injectorProvider = new StandardInjectorProvider<HelloWorldConfiguration>(
+			new DAOGuiceModule(),
+			jpaModule,
+			new JerseyGuiceModule()
+			{
+				@Override
+				protected void configureServlets()
+				{
+					bind(PersonResource.class);
+					bind(PeopleResource.class);
+					bind(UnitOfWorkFilterHK2Injected.class);
+					bind(HelloWorldConfiguration.class).toInstance(configuration);
+					bind(PersistServiceShim.class).asEagerSingleton();
+				}
+			})
+		{
+			@Override
+			public Injector get(HelloWorldConfiguration configuration, Environment environment, Module additionalModule)
+			{
+				Module localModule = new AbstractModule()
+				{
 					@Override
-					protected void configureServlets() {
-						bind(PersonResource.class);
-						bind(UnitOfWorkFilterHK2Injected.class);
+					protected void configure()
+					{
+						if ( additionalModule != null )
+						{
+							install(additionalModule);
+						}
+						bind(Environment.class).toInstance(environment);
 					}
-				});
-        
+				};
+				return super.get(configuration, environment, localModule);
+			}
+		};
+
 		GuiceBundle<HelloWorldConfiguration> guiceBundle = new GuiceBundle<>(injectorProvider);
 		bootstrap.addBundle(guiceBundle);
 
@@ -112,46 +132,9 @@ public class ApplicationUsingHK2InjectedUnitOfWorkFilter extends Application<Hel
 
     @Override
     public void run(HelloWorldConfiguration configuration, Environment environment) {
-    	
-    	injector = injectorProvider.get(configuration, environment,
-				new AbstractModule() {
-				@Override
-				protected void configure() {
-					bind(HelloWorldConfiguration.class).toInstance(configuration);
-				}
-			});
-        
-        register(environment, PeopleResource.class.getCanonicalName());
-		
-		environment.lifecycle().manage(new Managed() {
-			
-            @Override
-            public void start() {
-            	injector.getInstance(PersistService.class).start();
-            }
-
-            @Override
-            public void stop() {
-                injector.getInstance(PersistService.class).stop();
-            }
-        });
-    }
-    
-    private void register(Environment environment, String name) {
-		try {
-			Class<?> c = Class.forName(name);
-			Constructor<?> ctor = c.getConstructor();
-			Object instanceOfTheClass = ctor.newInstance();
-			injector.injectMembers(instanceOfTheClass);
-			environment.jersey().register(instanceOfTheClass);
-			logger.info("Registered Jersey Resource : {}", name);
-			System.out.println("Registered Jersey Resource : " + name);
-		} catch (Exception e) {
-			logger.error("FATAL: Couldn't initialize Jersey Resource :{}", name, e);
-			throw new IllegalStateException(e);
-		}
+		// NOP
 	}
-    
+
     private JpaPersistModule getJpaPersistModule(HelloWorldConfiguration configuration) {
 		Properties properties = new Properties();
 		Map<String, String> dbProperties = configuration.getDataSourceFactory().getProperties();
@@ -160,14 +143,14 @@ public class ApplicationUsingHK2InjectedUnitOfWorkFilter extends Application<Hel
 		persistModule.properties(properties);
 		return persistModule;
 	}
-    
+
     private static class DAOGuiceModule extends AbstractModule {
 		@Override
 		protected void configure() {
 			bind(PersonJPADAO.class);
 		}
     }
-    
+
     public static void printConfig(HelloWorldConfiguration configuration) {
 		System.out.println("Loaded Application Configuration: " + ToStringBuilder.reflectionToString(configuration, ToStringStyle.MULTI_LINE_STYLE));
 		System.out.println("Loaded serverFactory : " +  new ReflectionToStringBuilder(configuration.getServerFactory(), new RecursiveToStringStyle()).toString());
